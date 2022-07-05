@@ -1,0 +1,16 @@
+/// Color.rs
+
+struct Color {
+    r: i16,
+    g: i16,
+    b: i16,
+    a: i16
+}
+
+impl Color {
+    fn new(r: i16, g: i16, b: i16) {
+        Color {
+            r: r, g: g, b: b, a: a
+        }
+    }
+}
