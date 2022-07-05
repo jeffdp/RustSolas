@@ -1,6 +1,6 @@
 /// Color.rs
 
-struct Color {
+pub struct Color {
     r: i16,
     g: i16,
     b: i16,
@@ -8,9 +8,9 @@ struct Color {
 }
 
 impl Color {
-    fn new(r: i16, g: i16, b: i16) {
+    pub fn new(r: i16, g: i16, b: i16) -> Color {
         Color {
-            r: r, g: g, b: b, a: a
+            r: r, g: g, b: b, a: 255
         }
     }
 }
