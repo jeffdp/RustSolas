@@ -21,8 +21,6 @@ impl Ray {
 }
 
 pub fn random_in_unit_sphere() -> Vector3<f64> {
-    // let mut p = Vector3::new(0.0, 0.0, 0.0);
-
     loop {
         let x: f64 = random!();
         let y: f64 = random!();

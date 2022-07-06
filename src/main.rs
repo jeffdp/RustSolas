@@ -11,8 +11,8 @@ use cgmath::{Vector3, prelude::*};
 use solas::*;
 use image::{ImageBuffer, RgbImage, Rgb};
 
-const WIDTH: u32 = 200;
-const HEIGHT: u32 = 100;
+const WIDTH: u32 = 1200;
+const HEIGHT: u32 = (1200.0 * 9.0/16.0) as u32;
 
 fn main() {
     // let image = gradient_image(WIDTH, HEIGHT);
@@ -36,12 +36,17 @@ fn gradient(ray: Ray) -> Rgb<u8> {
 
 fn gradient_image(width: u32, height: u32) -> RgbImage {
     let mut image: RgbImage = ImageBuffer::new(width, height);
-    let camera = Camera {
-        lower_left: Vector3::new(-2.0, -1.0, -1.0),
-        horizontal: Vector3::new(4.0, 0.0, 0.0),
-        vertical: Vector3::new(0.0, 2.0, 0.0),
-        origin: Vector3::new(0.0, 0.0, 0.0)
-    };
+
+    let look_from = Vector3::new(13.0, 2.0, 3.0);
+    let look_at = Vector3::new(0.0, 0.0, 0.0);
+    let vup = Vector3::new(0.0, 1.0, 0.0);
+    let focus_dist = 10.0;
+    let aspect_ratio = 16.0 / 9.0;
+    let vfov = 20.0;
+    let aperture = aspect_ratio;
+
+    let camera = Camera::new(look_from, look_at, vup, vfov, 
+        aspect_ratio, aperture, focus_dist);
 
     let w = width as f64;
     let h = height as f64;
@@ -71,34 +76,8 @@ fn two_spheres(width: u32, height: u32) -> RgbImage {
     let vfov = 20.0;
     let aperture = aspect_ratio;
 
-    // From create_camera
-    let vertical = vup;
-    let vfov = 20.0;
-    let aspect = aspect_ratio;
-    let aperture = aspect_ratio;
-    let focus_dis = 10.0;
-    
-    let lens_radius = aperture / 2.0;
-    let theta = vfov * 3.1415926 / 180.0;
-    let half_height = (theta / 2.0 as f64).tan();
-    let half_width = half_height * aspect;
-
-    let w = (look_from - look_at).normalize();
-    let u = vertical.cross(w).normalize();
-    let v = w.cross(u);
-
-    let origin = look_from;
-    let horizontal = 2.0 * half_width * focus_dist * u;
-    let vertical = 2.0 * half_height * focus_dist * v;
-    let lower_left = origin - half_width * focus_dist * u
-        - half_height * focus_dist * v - focus_dist * w;
-
-    let camera = Camera::new(
-        lower_left,
-        horizontal,
-        vertical,
-        origin
-    );
+    let camera = Camera::new(look_from, look_at, vup, vfov, 
+        aspect_ratio, aperture, focus_dist);
 
     let ground = Sphere::new(Vector3::new(0.0, -100.5, 0.5), 100.0);
     let ball = Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5);
@@ -108,7 +87,7 @@ fn two_spheres(width: u32, height: u32) -> RgbImage {
     trace(&objects, camera, width, height, samples)
 }
 
-fn trace(objects: &[Sphere], camera: Camera, width: u32, height: u32, samples: u16) -> RgbImage {
+fn trace(objects: &[Sphere], camera: Camera, width: u32, height: u32, _samples: u16) -> RgbImage {
     let mut image: RgbImage = ImageBuffer::new(width, height);
 
     let w = width as f64;
@@ -122,7 +101,7 @@ fn trace(objects: &[Sphere], camera: Camera, width: u32, height: u32, samples: u
             let v = (j + 0.5) / h;
             let ray = camera.ray(u, v);
 
-            if let Some(hit) = hit(ray, 0.0, 10000.0, &objects) {
+            if let Some(_hit) = hit(ray, 0.0, 10000.0, &objects) {
                 let pixel =  image::Rgb([255, 0, 0]);
                 image.put_pixel(x, height - y - 1, pixel);
             }
@@ -130,5 +109,4 @@ fn trace(objects: &[Sphere], camera: Camera, width: u32, height: u32, samples: u
     }
 
     image
-
 }
