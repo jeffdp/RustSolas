@@ -15,7 +15,7 @@ impl Ray {
         }
     }
 
-    fn point(&self, t: f64) -> Vector3<f64> {
+    pub fn point(&self, t: f64) -> Vector3<f64> {
         self.origin + t * self.direction
     }
 }
