@@ -1,29 +1,28 @@
-#![allow(unused_imports)]
-#![allow(unused_variables)]
-
 /// Intersections
 
 use cgmath::{Vector3, prelude::*};
+use super::*;
 
-#[derive(Clone)]
 #[derive(Copy)]
+#[derive(Clone)]
 pub struct Hit {
     pub t: f64,
     pub p: Vector3::<f64>,
-    pub normal: Vector3::<f64>
+    pub normal: Vector3::<f64>,
+    pub material: LambertianMaterial
 }
 
 impl Hit {
-    fn new(t: f64, p: Vector3::<f64>, normal: Vector3::<f64>) -> Hit {
-        Hit { t, p, normal }
+    fn new(t: f64, p: Vector3::<f64>, normal: Vector3::<f64>, material: LambertianMaterial) -> Hit {
+        Hit { t, p, normal, material }
     }
 }
 
 pub trait Hitable {
-    fn hit(ray: super::Ray, min: f64, max: f64) -> Option<Hit>;
+    fn hit(ray: &Ray, min: f64, max: f64) -> Option<Hit>;
 }
 
-pub fn hit(ray: super::Ray, min: f64, max: f64, objects: &[Sphere]) -> Option<Hit> {
+pub fn hit(ray: &Ray, min: f64, max: f64, objects: &[Sphere]) -> Option<Hit> {
     let mut closest_hit: Option<Hit> = None;
 
     for object in objects {
@@ -47,12 +46,12 @@ pub fn hit(ray: super::Ray, min: f64, max: f64, objects: &[Sphere]) -> Option<Hi
 pub struct Sphere {
     pub center: Vector3<f64>,
     pub radius: f64,
-    // pub material: Material
+    pub material: LambertianMaterial
 }
 
 impl Sphere {
-    pub fn new(center: Vector3<f64>, radius: f64) -> Sphere {
-        Sphere { center, radius }
+    pub fn new(center: Vector3<f64>, radius: f64, material: LambertianMaterial) -> Sphere {
+        Sphere { center, radius, material }
     }
 
     pub fn hit(&self, ray: &super::Ray, min: f64, max: f64) -> Option<Hit> {
@@ -75,7 +74,7 @@ impl Sphere {
                 (point - self.center).z / self.radius
             );
 
-            return Some(Hit::new(temp, point, normal));
+            return Some(Hit::new(temp, point, normal, self.material));
         }
 
         None

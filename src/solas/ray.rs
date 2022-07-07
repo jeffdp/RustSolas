@@ -8,7 +8,7 @@ pub struct Ray {
 }
 
 impl Ray {
-    fn new(origin: Vector3::<f64>, direction: Vector3::<f64>) -> Ray {
+    pub fn new(origin: Vector3::<f64>, direction: Vector3::<f64>) -> Ray {
         Ray {
             origin, 
             direction
