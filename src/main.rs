@@ -34,7 +34,7 @@ fn background(ray: &Ray) -> Rgb<f64> {
 }
 
 fn color_normal(ray: &Ray, objects: &[Sphere]) -> Rgb<f64> {
-    if let Some(hit) = hit(ray, 0.0, 10000.0, &objects) {
+    if let Some(hit) = hit(ray, 0.001, 10000.0, &objects) {
         return Rgb([
             (hit.normal.x + 1.0) / 2.0,
             (hit.normal.y + 1.0) / 2.0,
@@ -45,27 +45,9 @@ fn color_normal(ray: &Ray, objects: &[Sphere]) -> Rgb<f64> {
     background(ray)
 }
 
-/*
-private func color(_ ray: Ray, objects: [Hitable], depth: Int) -> Color {
-    if let hit = hit(ray: ray, objects: objects) {
-        guard depth < 10, let (attenuation, scattered) = hit.material.scatter(ray: ray, hit: hit) else {
-            return Color()
-        }
-
-        return attenuation * color(scattered, objects: objects, depth: depth+1)
-    }
-
-    let unitDirection = ray.direction.normalized()
-    let t = 0.5 * unitDirection.y + 1.0
-    let lerp = (1.0 - t) * vec3(1.0, 1.0, 1.0) + t*vec3(0.5, 0.7, 1.0)
-
-    return Color(lerp)
-}
-*/
-
-fn color(ray: &Ray, objects: &[Sphere], depth: i8) -> Rgb<f64> {
+fn basic_color(ray: &Ray, objects: &[Sphere], depth: i8) -> Rgb<f64> {
     if depth < 10 {
-        if let Some(hit) = hit(ray, 0.0, 10000.0, &objects) {
+        if let Some(hit) = hit(ray, 0.001, 10000.0, &objects) {
             let target = hit.p + hit.normal + random_in_unit_sphere();
             let ray = Ray::new(hit.p, target - hit.p);
             return color(&ray, objects, depth+1).multiply(0.5);
@@ -75,25 +57,20 @@ fn color(ray: &Ray, objects: &[Sphere], depth: i8) -> Rgb<f64> {
     background(ray)
 }
 
-/* 
 fn color(ray: &Ray, objects: &[Sphere], depth: i8) -> Rgb<f64> {
-    if let Some(hit) = hit(ray, 0.0, 10000.0, &objects) {
-        if depth >= 10 {
-            return Rgb([0, 0, 0]);
+    if let Some(hit) = hit(ray, 0.001, 10000.0, &objects) {
+        if let Some((attenuation, scattered)) = hit.material.scatter(ray, hit) {
+            if depth < 10 {
+                let new_color = color(&scattered, objects, depth+1);
+                return mult(attenuation.to_color(), new_color);
+            }
         }
 
-        if let Some((attenuation, _)) = hit.material.scatter(ray, hit) {
-            let pixel = image::Rgb([attenuation.x, attenuation.y, attenuation.z]);
-
-            return mult(pixel, color(ray, objects, depth + 1));
-        } else {
-            return Rgb([0, 0, 0]);
-        }
+        return Rgb([0.0, 0.0, 0.0]);
     }
 
     background(ray)
 }
-*/
 
 fn gradient(ray: Ray) -> Rgb<f64> {
     let direction = ray.direction.normalize();
