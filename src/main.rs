@@ -13,6 +13,7 @@ use solas::*;
 
 const WIDTH: u32 = 1200;
 const HEIGHT: u32 = (1200.0 * 9.0 / 16.0) as u32;
+const SAMPLES: u16 = 10;
 
 fn main() {
     // let image = gradient_image(WIDTH, HEIGHT);
@@ -156,7 +157,7 @@ fn two_spheres(width: u32, height: u32) -> RgbImage {
     let ball_material = LambertianMaterial::new(Vector3::new(0.1, 0.1, 0.8));
     let ball = Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5, ball_material);
     let objects = [ground, ball];
-    let samples = 1;
+    let samples = SAMPLES;
 
     trace(&objects, camera, width, height, samples)
 }
@@ -168,29 +169,38 @@ fn percent_complete(y: u32, height: u32) -> u32 {
     ((height - y) / height * 100.0) as u32
 }
 
-fn trace(objects: &[Sphere], camera: Camera, width: u32, height: u32, _samples: u16) -> RgbImage {
+fn trace(objects: &[Sphere], camera: Camera, width: u32, height: u32, samples: u16) -> RgbImage {
     let mut image: RgbImage = ImageBuffer::new(width, height);
 
     let w = width as f64;
     let h = height as f64;
+    let progress_step = (h / 10.0) as u32;
     for y in (0..height).rev() {
-        if y % 10 == 0 {
+        if y % progress_step == 0 {
             println!("{}% complete", percent_complete(y, height));
         }
 
         for x in 0..width {
-            let i = x as f64;
-            let j = y as f64;
+            let mut accumulated_color = Rgb([0.0, 0.0, 0.0]);
 
-            let u = (i + 0.5) / w;
-            let v = (j + 0.5) / h;
-            let ray = camera.ray(u, v);
+            for _ in 0..samples {
+                let i = x as f64;
+                let j = y as f64;
 
-            let pixel = color(&ray, &objects, 1);
+                let u = (i + 0.5) / w;
+                let v = (j + 0.5) / h;
+                let ray = camera.ray(u, v);
+
+                let pixel = color(&ray, &objects, 1);
+                accumulated_color[0] += pixel[0];
+                accumulated_color[1] += pixel[1];
+                accumulated_color[2] += pixel[2];
+            }
+
             let pixel = Rgb([
-                (pixel[0] * 255.0) as u8,
-                (pixel[1] * 255.0) as u8,
-                (pixel[2] * 255.0) as u8,
+                (accumulated_color[0] / samples as f64 * 255.0) as u8,
+                (accumulated_color[1] / samples as f64 * 255.0) as u8,
+                (accumulated_color[2] / samples as f64 * 255.0) as u8,
             ]);
 
             image.put_pixel(x, height - y - 1, pixel);
