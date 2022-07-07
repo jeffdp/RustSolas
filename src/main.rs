@@ -7,12 +7,12 @@ mod prelude {
     pub use crate::solas::{Camera, Color, Ray};
 }
 
-use cgmath::{Vector3, prelude::*};
+use cgmath::{prelude::*, Vector3};
+use image::{ImageBuffer, Rgb, RgbImage};
 use solas::*;
-use image::{ImageBuffer, RgbImage, Rgb};
 
 const WIDTH: u32 = 1200;
-const HEIGHT: u32 = (1200.0 * 9.0/16.0) as u32;
+const HEIGHT: u32 = (1200.0 * 9.0 / 16.0) as u32;
 
 fn main() {
     // let image = gradient_image(WIDTH, HEIGHT);
@@ -21,7 +21,7 @@ fn main() {
     image.save("output/image.png").unwrap();
 }
 
-/* 
+/*
 private func color(_ ray: Ray, objects: [Hitable], depth: Int) -> Color {
     if let hit = hit(ray: ray, objects: objects) {
         guard depth < 10, let (attenuation, scattered) = hit.material.scatter(ray: ray, hit: hit) else {
@@ -39,18 +39,18 @@ private func color(_ ray: Ray, objects: [Hitable], depth: Int) -> Color {
 }
 */
 
-fn color( ray: &Ray, objects: &[Sphere], depth: i8) -> Rgb<u8> {
+fn color(ray: &Ray, objects: &[Sphere], depth: i8) -> Rgb<u8> {
     if let Some(hit) = hit(ray, 0.0, 10000.0, &objects) {
         if depth >= 10 {
-            return Rgb([0, 0, 0])
+            return Rgb([0, 0, 0]);
         }
 
         if let Some((attenuation, _)) = hit.material.scatter(ray, hit) {
             let red = (255.0 * attenuation.x) as u8;
             let green = (255.0 * attenuation.y) as u8;
             let blue = (255.0 * attenuation.z) as u8;
-            let pixel =  image::Rgb([red, green, blue]);
-        
+            let pixel = image::Rgb([red, green, blue]);
+
             return pixel;
         } else {
             return Rgb([0, 0, 0]);
@@ -64,7 +64,7 @@ fn color( ray: &Ray, objects: &[Sphere], depth: i8) -> Rgb<u8> {
     let red = (255.0 * lerp.x) as u8;
     let green = (255.0 * lerp.y) as u8;
     let blue = (255.0 * lerp.z) as u8;
-    let pixel =  image::Rgb([red, green, blue]);
+    let pixel = image::Rgb([red, green, blue]);
 
     return pixel;
 }
@@ -72,14 +72,15 @@ fn color( ray: &Ray, objects: &[Sphere], depth: i8) -> Rgb<u8> {
 fn gradient(ray: Ray) -> Rgb<u8> {
     let direction = ray.direction.normalize();
     let t = (direction.y + 1.0) / 2.0;
-    
+
     let start = Vector3::new(1.0 - t, 1.0 - t, 1.0 - t);
     let end = Vector3::new(0.5, 0.7, 1.0);
 
     image::Rgb([
-        ((start.x + t * end.x) * 255.0) as u8, 
-        ((start.y + t * end.y) * 255.0) as u8, 
-        ((start.z + t * end.z) * 255.0) as u8])
+        ((start.x + t * end.x) * 255.0) as u8,
+        ((start.y + t * end.y) * 255.0) as u8,
+        ((start.z + t * end.z) * 255.0) as u8,
+    ])
 }
 
 fn gradient_image(width: u32, height: u32) -> RgbImage {
@@ -93,8 +94,15 @@ fn gradient_image(width: u32, height: u32) -> RgbImage {
     let vfov = 20.0;
     let aperture = aspect_ratio;
 
-    let camera = Camera::new(look_from, look_at, vup, vfov, 
-        aspect_ratio, aperture, focus_dist);
+    let camera = Camera::new(
+        look_from,
+        look_at,
+        vup,
+        vfov,
+        aspect_ratio,
+        aperture,
+        focus_dist,
+    );
 
     let w = width as f64;
     let h = height as f64;
@@ -124,18 +132,21 @@ fn two_spheres(width: u32, height: u32) -> RgbImage {
     let vfov = 20.0;
     let aperture = aspect_ratio;
 
-    let camera = Camera::new(look_from, look_at, vup, vfov, 
-        aspect_ratio, aperture, focus_dist);
+    let camera = Camera::new(
+        look_from,
+        look_at,
+        vup,
+        vfov,
+        aspect_ratio,
+        aperture,
+        focus_dist,
+    );
 
     let ground_material = LambertianMaterial::new(Vector3::new(0.8, 0.8, 0.0));
-    let ground = Sphere::new(Vector3::new(0.0, -100.5, 0.5), 
-                                     100.0,
-                                     ground_material);
+    let ground = Sphere::new(Vector3::new(0.0, -100.5, 0.5), 100.0, ground_material);
 
     let ball_material = LambertianMaterial::new(Vector3::new(0.1, 0.1, 0.8));
-    let ball = Sphere::new(Vector3::new(0.0, 0.0, -1.0), 
-                                   0.5,
-                                   ball_material);
+    let ball = Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5, ball_material);
     let objects = [ground, ball];
     let samples = 1;
 
