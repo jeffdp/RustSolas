@@ -1,7 +1,7 @@
 // Material
 
 use super::*;
-use cgmath::{prelude::*, Vector3};
+use cgmath::{Vector3};
 
 // use super::ray::random_in_unit_sphere;
 
@@ -25,10 +25,6 @@ impl Material for LambertianMaterial {
         let target = hit.p + hit.normal + random_in_unit_sphere();
         let scattered = Ray::new(hit.p, target - hit.p);
         let attenuation = self.albedo;
-
-        if scattered.direction.dot(hit.normal) <= 0.0 {
-            return None;
-        }
 
         Some((attenuation, scattered))
     }

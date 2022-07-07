@@ -68,7 +68,7 @@ impl Sphere {
         let c = oc.dot(oc) - self.radius.powi(2);
         let discriminant = b * b - a * c;
 
-        if discriminant < 0.0 {
+        if discriminant <= 0.0 {
             return None;
         }
 
