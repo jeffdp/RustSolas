@@ -12,6 +12,20 @@ pub struct Material {
     dialectric: Option<DialectricMaterial>,
 }
 
+// Temporary helper functions until a better Material API can be built.
+
+pub fn make_lambertian(albedo: Vector3<f64>) -> Material {
+    Material::new(Some(LambertianMaterial::new(albedo)), None, None)
+}
+
+pub fn make_metal(albedo: Vector3<f64>, fuzz: f64) -> Material {
+    Material::new(None, Some(MetalMaterial::new(albedo, fuzz)), None)
+}
+
+pub fn make_dialectric(refractive_index: f64) -> Material {
+    Material::new(None, None, Some(DialectricMaterial::new(refractive_index)))
+}
+
 impl Material {
     pub fn new(
         lambertian: Option<LambertianMaterial>,

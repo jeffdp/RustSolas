@@ -18,7 +18,8 @@ const SAMPLES: u16 = 10;
 fn main() {
     // let image = gradient_image(WIDTH, HEIGHT);
     // let image = two_spheres(WIDTH, HEIGHT);
-    let image = four_spheres(WIDTH, HEIGHT);
+    // let image = four_spheres(WIDTH, HEIGHT);
+    let image = random_spheres(WIDTH, HEIGHT);
 
     image.save("output/image.png").unwrap();
 }
@@ -152,18 +153,10 @@ fn two_spheres(width: u32, height: u32) -> RgbImage {
         focus_dist,
     );
 
-    let ground_material = Material::new(
-        Some(LambertianMaterial::new(Vector3::new(0.8, 0.8, 0.0))),
-        None,
-        None,
-    );
+    let ground_material = make_lambertian(Vector3::new(0.8, 0.8, 0.0));
     let ground = Sphere::new(Vector3::new(0.0, -100.5, 0.5), 100.0, ground_material);
 
-    let ball_material = Material::new(
-        Some(LambertianMaterial::new(Vector3::new(0.1, 0.1, 0.8))),
-        None,
-        None,
-    );
+    let ball_material = make_lambertian(Vector3::new(0.1, 0.1, 0.8));
     let ball = Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5, ball_material);
     let objects = [ground, ball];
     let samples = SAMPLES;
@@ -190,33 +183,74 @@ fn four_spheres(width: u32, height: u32) -> RgbImage {
         focus_dist,
     );
 
-    let ground_material = Material::new(
-        Some(LambertianMaterial::new(Vector3::new(0.8, 0.8, 0.0))),
-        None,
-        None,
-    );
+    let ground_material = make_lambertian(Vector3::new(0.8, 0.8, 0.0));
     let ground = Sphere::new(Vector3::new(0.0, -100.5, -1.0), 100.0, ground_material);
 
-    let left_material = Material::new(None, None, Some(DialectricMaterial::new(1.5)));
+    let left_material = make_dialectric(1.5);
     let left = Sphere::new(Vector3::new(-1.0, 0.0, -1.0), 0.5, left_material);
 
-    let middle_material = Material::new(
-        Some(LambertianMaterial::new(Vector3::new(0.8, 0.3, 0.3))),
-        None,
-        None,
-    );
+    let middle_material = make_lambertian(Vector3::new(0.8, 0.3, 0.3));
     let middle = Sphere::new(Vector3::new(0.0, 0.0, -1.0), 0.5, middle_material);
 
-    let right_material = Material::new(
-        None,
-        Some(MetalMaterial::new(Vector3::new(0.8, 0.6, 0.2), 0.5)),
-        None,
-    );
+    let right_material = make_metal(Vector3::new(0.8, 0.6, 0.2), 0.5);
     let right = Sphere::new(Vector3::new(1.0, 0.0, -1.0), 0.5, right_material);
 
     let objects = [ground, left, middle, right];
     let samples = SAMPLES;
 
+    trace(&objects, camera, width, height, samples)
+}
+
+fn random_spheres(width: u32, height: u32) -> RgbImage {
+    let look_from = Vector3::new(13.0, 2.0, 3.0);
+    let look_at = Vector3::new(0.0, 0.0, 0.0);
+    let vup = Vector3::new(0.0, 1.0, 0.0);
+    let focus_dist = 10.0;
+    let aspect_ratio = 16.0 / 9.0;
+    let vfov = 20.0;
+    let aperture = aspect_ratio;
+
+    let camera = Camera::new(
+        look_from,
+        look_at,
+        vup,
+        vfov,
+        aspect_ratio,
+        aperture,
+        focus_dist,
+    );
+
+    let mut objects: Vec<Sphere> = vec![];
+
+    // Ground sphere
+    objects.push(Sphere::new(
+        Vector3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        make_lambertian(Vector3::new(0.5, 0.5, 0.5)),
+    ));
+
+    // Far sphere
+    objects.push(Sphere::new(
+        Vector3::new(0.0, 1.0, 0.0),
+        1.0,
+        make_dialectric(1.5),
+    ));
+
+    // middle sphere
+    objects.push(Sphere::new(
+        Vector3::new(-4.0, 1.0, 0.0),
+        1.0,
+        make_lambertian(Vector3::new(0.4, 0.2, 0.1)),
+    ));
+
+    // Near sphere
+    objects.push(Sphere::new(
+        Vector3::new(4.0, 1.0, 0.0),
+        1.0,
+        make_metal(Vector3::new(0.7, 0.6, 0.5), 0.0),
+    ));
+
+    let samples = SAMPLES;
     trace(&objects, camera, width, height, samples)
 }
 
