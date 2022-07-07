@@ -7,11 +7,11 @@ pub struct Hit {
     pub t: f64,
     pub p: Vector3<f64>,
     pub normal: Vector3<f64>,
-    pub material: LambertianMaterial,
+    pub material: Material,
 }
 
 impl Hit {
-    fn new(t: f64, p: Vector3<f64>, normal: Vector3<f64>, material: LambertianMaterial) -> Hit {
+    fn new(t: f64, p: Vector3<f64>, normal: Vector3<f64>, material: Material) -> Hit {
         Hit {
             t,
             p,
@@ -19,10 +19,6 @@ impl Hit {
             material,
         }
     }
-}
-
-pub trait Hitable {
-    fn hit(ray: &Ray, min: f64, max: f64) -> Option<Hit>;
 }
 
 pub fn hit(ray: &Ray, min: f64, max: f64, objects: &[Sphere]) -> Option<Hit> {
@@ -49,11 +45,11 @@ pub fn hit(ray: &Ray, min: f64, max: f64, objects: &[Sphere]) -> Option<Hit> {
 pub struct Sphere {
     pub center: Vector3<f64>,
     pub radius: f64,
-    pub material: LambertianMaterial,
+    pub material: Material,
 }
 
 impl Sphere {
-    pub fn new(center: Vector3<f64>, radius: f64, material: LambertianMaterial) -> Sphere {
+    pub fn new(center: Vector3<f64>, radius: f64, material: Material) -> Sphere {
         Sphere {
             center,
             radius,
