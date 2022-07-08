@@ -20,8 +20,8 @@ const SAMPLES: u16 = 10;
 fn main() {
     // let image = gradient_image(WIDTH, HEIGHT);
     // let image = two_spheres(WIDTH, HEIGHT);
-    let image = four_spheres(WIDTH, HEIGHT);
-    // let image = random_spheres(WIDTH, HEIGHT);
+    // let image = four_spheres(WIDTH, HEIGHT);
+    let image = random_spheres(WIDTH, HEIGHT);
 
     image.save("output/image.png").unwrap();
 }

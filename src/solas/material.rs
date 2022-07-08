@@ -90,7 +90,7 @@ fn refract(v: Vector3<f64>, n: Vector3<f64>, ni_over_nt: f64) -> Option<Vector3<
     let dt = uv.dot(n);
     let discriminant = 1.0 - ni_over_nt * ni_over_nt * (1.0 - dt * dt);
 
-    if discriminant <= 0.0 {
+    if discriminant > 0.0 {
         return Some((uv - n * dt) * ni_over_nt - n * discriminant.sqrt());
     } else {
         return None;
@@ -178,6 +178,57 @@ mod tests {
         let delta = 0.000001;
 
         diff_x < delta && diff_y < delta && diff_z < delta
+    }
+
+    struct DialectricTests {
+        ray: Ray,
+        hit: Hit,
+    }
+
+    impl DialectricTests {
+        fn new() -> Self {
+            DialectricTests {
+                ray: Ray::new(
+                    Vector3::new(-0.240156129, -0.61830759, -5.85693741),
+                    Vector3::new(-0.0104245991, 0.0229948163, 0.13193655),
+                ),
+                hit: Hit::new(
+                    34.9683533,
+                    Vector3::new(-0.604687213, 0.185783267, -1.24333334),
+                    Vector3::new(0.790625572, 0.371566534, -0.486666679),
+                    make_dialectric(1.5),
+                ),
+            }
+        }
+    }
+
+    #[test]
+    fn dialectric_refraction() {
+        let setup = DialectricTests::new();
+
+        let expected_outward_normal = Vector3::new(0.790625572, 0.371566534, -0.486666679);
+        let expected_ni_over_nt = 0.666666686;
+        let expected_refracted = Vector3::new(-0.44140905, -0.069012165, 0.8946475);
+
+        let refraction = refract(
+            setup.ray.direction,
+            expected_outward_normal,
+            expected_ni_over_nt,
+        )
+        .unwrap();
+        assert!(nearly_equal(refraction, expected_refracted));
+    }
+
+    #[test]
+    fn dialectric_scatter() {
+        let setup = DialectricTests::new();
+
+        let expected_scatter_origin = Vector3::new(-0.604687213, 0.185783267, -1.24333334);
+        let expected_scatter_dir = Vector3::new(-0.441409051, -0.0690121651, 0.894647479);
+
+        let (_, scatter) = setup.hit.material.scatter(&setup.ray, setup.hit).unwrap();
+        assert!(nearly_equal(scatter.origin, expected_scatter_origin));
+        assert!(nearly_equal(scatter.direction, expected_scatter_dir));
     }
 
     struct MetalTests {
