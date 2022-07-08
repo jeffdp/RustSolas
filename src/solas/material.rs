@@ -111,7 +111,9 @@ impl MetalMaterial {
 
     pub fn scatter(&self, ray: &Ray, hit: Hit) -> Option<(Vector3<f64>, Ray)> {
         let reflected = reflect(ray.direction.normalize(), hit.normal);
-        let scattered = Ray::new(hit.p, reflected + random_in_unit_sphere());
+
+        let scattered_direction = reflected + (random_in_unit_sphere() * self.fuzz);
+        let scattered = Ray::new(hit.p, scattered_direction);
         let attenuation = self.albedo;
 
         if scattered.direction.dot(hit.normal) <= 0.0 {
@@ -161,5 +163,64 @@ impl DialectricMaterial {
         } else {
             return Some((attenuation, Ray::new(hit.p, reflected)));
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn nearly_equal(a: Vector3<f64>, b: Vector3<f64>) -> bool {
+        let diff_x = (a[0] - b[0]).abs();
+        let diff_y = (a[1] - b[1]).abs();
+        let diff_z = (a[2] - b[2]).abs();
+
+        let delta = 0.000001;
+
+        diff_x < delta && diff_y < delta && diff_z < delta
+    }
+
+    struct MetalTests {
+        ray: Ray,
+        hit: Hit,
+    }
+
+    impl MetalTests {
+        fn new() -> Self {
+            MetalTests {
+                ray: Ray::new(
+                    Vector3::new(1.49196982, -0.697316408, -7.09905147),
+                    Vector3::new(-0.00825381278, 0.0296297669, 0.183610916),
+                ),
+
+                hit: Hit::new(
+                    31.1511402,
+                    Vector3::new(1.2348541, 0.225684643, -1.37936211),
+                    Vector3::new(0.469708204, 0.451369286, -0.758724212),
+                    make_metal(Vector3::new(0.0, 0.0, 0.0), 0.0),
+                ),
+            }
+        }
+    }
+
+    #[test]
+    fn reflect_reflection() {
+        let setup = MetalTests::new();
+        let expected_reflection = Vector3::new(0.610705376, 0.788620412, -0.0718354583);
+
+        let reflected = super::reflect(setup.ray.direction.normalize(), setup.hit.normal);
+        assert!(nearly_equal(reflected, expected_reflection));
+    }
+
+    #[test]
+    fn reflect_scatter() {
+        let setup = MetalTests::new();
+        let expected_scatter_point = Vector3::new(1.2348541, 0.225684643, -1.37936211);
+        let expected_scatter_dir = Vector3::new(0.610705376, 0.788620412, -0.0718354583);
+
+        let (_, scattered) = setup.hit.material.scatter(&setup.ray, setup.hit).unwrap();
+
+        assert!(nearly_equal(scattered.origin, expected_scatter_point));
+        assert!(nearly_equal(scattered.direction, expected_scatter_dir));
     }
 }

@@ -11,7 +11,7 @@ pub struct Hit {
 }
 
 impl Hit {
-    fn new(t: f64, p: Vector3<f64>, normal: Vector3<f64>, material: Material) -> Hit {
+    pub fn new(t: f64, p: Vector3<f64>, normal: Vector3<f64>, material: Material) -> Hit {
         Hit {
             t,
             p,
@@ -71,11 +71,7 @@ impl Sphere {
         let temp = (-b - discriminant.sqrt()) / a;
         if temp < max && temp > min {
             let point = ray.point(temp);
-            let normal = Vector3::new(
-                (point - self.center).x / self.radius,
-                (point - self.center).y / self.radius,
-                (point - self.center).z / self.radius,
-            );
+            let normal = (point - self.center) / self.radius;
 
             return Some(Hit::new(temp, point, normal, self.material));
         }
