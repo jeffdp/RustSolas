@@ -9,11 +9,13 @@ mod prelude {
 
 use cgmath::{prelude::*, Vector3};
 use image::{ImageBuffer, Rgb, RgbImage};
+use random_number::random;
+
 use solas::*;
 
 const WIDTH: u32 = 1200;
 const HEIGHT: u32 = (1200.0 * 9.0 / 16.0) as u32;
-const SAMPLES: u16 = 10;
+const SAMPLES: u16 = 1;
 
 fn main() {
     // let image = gradient_image(WIDTH, HEIGHT);
@@ -228,6 +230,36 @@ fn random_spheres(width: u32, height: u32) -> RgbImage {
         1000.0,
         make_lambertian(Vector3::new(0.5, 0.5, 0.5)),
     ));
+
+    // Random spheres
+    let rand = || {
+        let x: f64 = random!();
+        x
+    };
+
+    for x in -11..=11 {
+        for y in -11..=11 {
+            let a = x as f64;
+            let b = y as f64;
+            let center = Vector3::new(a + (0.9 * rand()), 0.2, b + 0.9 * rand());
+
+            let material = rand();
+            if material <= 0.8 {
+                let albedo = Vector3::new(rand(), rand(), rand());
+                objects.push(Sphere::new(center, 0.2, make_lambertian(albedo)));
+            } else if material <= 0.95 {
+                let albedo = Vector3::new(
+                    0.5 * (1.0 + rand()),
+                    0.5 * (1.0 + rand()),
+                    0.5 * (1.0 + rand()),
+                );
+                let fuzz = 0.5 * rand();
+                objects.push(Sphere::new(center, 0.2, make_metal(albedo, fuzz)))
+            } else {
+                objects.push(Sphere::new(center, 0.2, make_dialectric(1.5)));
+            }
+        }
+    }
 
     // Far sphere
     objects.push(Sphere::new(
