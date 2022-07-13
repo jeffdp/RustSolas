@@ -10,6 +10,7 @@ mod prelude {
 use cgmath::{prelude::*, Vector3};
 use image::{ImageBuffer, Rgb, RgbImage};
 use random_number::random;
+use std::time::{Duration, Instant};
 
 use solas::*;
 
@@ -21,7 +22,11 @@ fn main() {
     // let image = gradient_image(WIDTH, HEIGHT);
     // let image = two_spheres(WIDTH, HEIGHT);
     // let image = four_spheres(WIDTH, HEIGHT);
+
+    let start = Instant::now();
     let image = random_spheres(WIDTH, HEIGHT);
+    let duration = start.elapsed();
+    println!("Render time: {:?}", duration);
 
     image.save("output/image.png").unwrap();
 }
