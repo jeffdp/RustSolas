@@ -204,7 +204,7 @@ fn four_spheres(width: u32, height: u32) -> RgbImage {
 }
 
 fn random_spheres(width: u32, height: u32) -> RgbImage {
-    let look_from = Vector3::new(13.0, 2.0, 3.0);
+    let look_from = Vector3::new(16.0, 2.0, 4.0);
     let look_at = Vector3::new(0.0, 0.0, 0.0);
     let vup = Vector3::new(0.0, 1.0, 0.0);
     let focus_dist = 10.0;
@@ -263,16 +263,16 @@ fn random_spheres(width: u32, height: u32) -> RgbImage {
 
     // Far sphere
     objects.push(Sphere::new(
-        Vector3::new(0.0, 1.0, 0.0),
+        Vector3::new(-4.0, 1.0, 0.0),
         1.0,
-        make_dialectric(1.5),
+        make_lambertian(Vector3::new(0.4, 0.2, 0.1)),
     ));
 
     // middle sphere
     objects.push(Sphere::new(
-        Vector3::new(-4.0, 1.0, 0.0),
+        Vector3::new(0.0, 1.0, 0.0),
         1.0,
-        make_lambertian(Vector3::new(0.4, 0.2, 0.1)),
+        make_dialectric(1.5),
     ));
 
     // Near sphere
