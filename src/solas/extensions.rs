@@ -12,9 +12,9 @@ impl RgbExt for Rgb<f64> {
     }
 
     fn gamma2(&self) -> Self {
-        let red = self[0].sqrt() * 3.1;
-        let green = self[1].sqrt() * 3.1;
-        let blue = self[2].sqrt() * 3.1;
+        let red = self[0].sqrt();
+        let green = self[1].sqrt();
+        let blue = self[2].sqrt();
 
         Rgb([red, green, blue])
     }

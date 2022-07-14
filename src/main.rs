@@ -10,13 +10,13 @@ mod prelude {
 use cgmath::{prelude::*, Vector3};
 use image::{ImageBuffer, Rgb, RgbImage};
 use random_number::random;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 use solas::*;
 
 const WIDTH: u32 = 1200;
 const HEIGHT: u32 = (1200.0 * 9.0 / 16.0) as u32;
-const SAMPLES: u16 = 10;
+const SAMPLES: u16 = 20;
 
 fn main() {
     // let image = gradient_image(WIDTH, HEIGHT);
@@ -212,10 +212,10 @@ fn random_spheres(width: u32, height: u32) -> RgbImage {
     let look_from = Vector3::new(16.0, 2.0, 4.0);
     let look_at = Vector3::new(0.0, 0.0, 0.0);
     let vup = Vector3::new(0.0, 1.0, 0.0);
-    let focus_dist = 10.0;
+    let focus_dist = (look_at - look_from).magnitude();
     let aspect_ratio = 16.0 / 9.0;
-    let vfov = 20.0;
-    let aperture = aspect_ratio;
+    let vfov = 15.0;
+    let aperture = 0.2;
 
     let camera = Camera::new(
         look_from,
@@ -326,12 +326,17 @@ fn trace(objects: &[Sphere], camera: Camera, width: u32, height: u32, samples: u
                 accumulated_color[2] += pixel[2];
             }
 
-            let accumulated_color = accumulated_color.gamma2();
+            let sample_portion = 1.0 / samples as f64;
+            let average_color = Rgb([
+                accumulated_color[0] * sample_portion,
+                accumulated_color[1] * sample_portion,
+                accumulated_color[2] * sample_portion
+            ]).gamma2();
 
             let pixel = Rgb([
-                (accumulated_color[0] / samples as f64 * 255.0) as u8,
-                (accumulated_color[1] / samples as f64 * 255.0) as u8,
-                (accumulated_color[2] / samples as f64 * 255.0) as u8,
+                (average_color[0] * 255.0) as u8,
+                (average_color[1] * 255.0) as u8,
+                (average_color[2] * 255.0) as u8,
             ]);
 
             image.put_pixel(x, height - y - 1, pixel);
