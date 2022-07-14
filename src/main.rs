@@ -19,12 +19,13 @@ const HEIGHT: u32 = (1200.0 * 9.0 / 16.0) as u32;
 const SAMPLES: u16 = 20;
 
 fn main() {
+    let start = Instant::now();
+
     // let image = gradient_image(WIDTH, HEIGHT);
     // let image = two_spheres(WIDTH, HEIGHT);
     // let image = four_spheres(WIDTH, HEIGHT);
-
-    let start = Instant::now();
     let image = random_spheres(WIDTH, HEIGHT);
+    
     let duration = start.elapsed();
     println!("Render time: {:?}", duration);
 
@@ -215,7 +216,7 @@ fn random_spheres(width: u32, height: u32) -> RgbImage {
     let focus_dist = (look_at - look_from).magnitude();
     let aspect_ratio = 16.0 / 9.0;
     let vfov = 15.0;
-    let aperture = 0.2;
+    let aperture = 0.15;
 
     let camera = Camera::new(
         look_from,
@@ -248,18 +249,22 @@ fn random_spheres(width: u32, height: u32) -> RgbImage {
             let b = y as f64;
             let center = Vector3::new(a + (0.9 * rand()), 0.2, b + 0.9 * rand());
 
-            let material = rand();
-            if material <= 0.8 {
-                let albedo = Vector3::new(rand(), rand(), rand());
-                objects.push(Sphere::new(center, 0.2, make_lambertian(albedo)));
-            } else if material <= 0.95 {
-                let albedo = Vector3::new(
-                    0.5 * (1.0 + rand()),
-                    0.5 * (1.0 + rand()),
-                    0.5 * (1.0 + rand()),
-                );
-                let fuzz = 0.5 * rand();
-                objects.push(Sphere::new(center, 0.2, make_metal(albedo, fuzz)))
+            if (center - Vector3::new(4.0, 0.2, 0.0)).magnitude() > 0.9 {
+                let material = rand();
+                if material <= 0.8 {
+                    let albedo = Vector3::new(rand(), rand(), rand());
+                    objects.push(Sphere::new(center, 0.2, make_lambertian(albedo)));
+                } else if material <= 0.95 {
+                    let albedo = Vector3::new(
+                        0.5 * (1.0 + rand()),
+                        0.5 * (1.0 + rand()),
+                        0.5 * (1.0 + rand()),
+                    );
+                    let fuzz = 0.5 * rand();
+                    objects.push(Sphere::new(center, 0.2, make_metal(albedo, fuzz)))
+                } else {
+                    objects.push(Sphere::new(center, 0.2, make_dialectric(1.5)));
+                }
             } else {
                 objects.push(Sphere::new(center, 0.2, make_dialectric(1.5)));
             }
